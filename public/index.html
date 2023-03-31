@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <title>Usage Tracker</title>
+    <script src="./usageConvert.js"></script>
+  </head>
+  <body id="body">
+    <form class="form">
+      <h1>Usage Tracker</h1>
+      <label for="email">Enter Your Email</label>
+      <input type="email" id="email" name="email" />
+      <button type="submit" id="submit">Submit</button>
+    </form>
+    <script>
+      const form = document.querySelector(".form");
+      const submit = document.querySelector("#submit");
+      submit.addEventListener("click", getData);
+
+      async function getData(e) {
+        e.preventDefault();
+        if (document.getElementById("email").value < 1) {
+          alert("Please enter your email");
+        } else {
+          document.getElementById("results").style.display = "flex";
+          const email = document.querySelector("#email").value;
+          await fetch(`http://localhost:3000/api/usage/${email}`)
+            .then((res) => res.json())
+            .then((data) => {
+              console.log(data);
+              if (data.message == "No data found") {
+                const results = document.querySelector("#results");
+                results.innerHTML = `
+                            <p> "No Data Found" </p>
+                            <button id="refresh" class="refresh">Refresh</button>
+                        `;
+              } else {
+                const nowData = new Date().toLocaleString();
+                const status = data[0].enable == 1 ? "Active 🟢" : "Disabled 🔴";
+                const results = document.querySelector("#results");
+                const uplink = converter(data[0].up);
+                const downlink = converter(data[0].down);
+                const datetime = timedata(data[0].expiry_time)
+                const totalUsage = converter(data[0].up + data[0].down);
+                results.innerHTML = `
+                            <h2 style='text-align:center'> Your Usage @ ${nowData} </h2>
+                            <p> Status: ${status} </p>
+                            <p> Total Usage: ${totalUsage} </p>
+                            <div class='usage-div'>
+                                <p> Upload ⬆️: ${uplink} </p>
+                                <p> Download ⬇️: ${downlink} </p>
+                            </div>
+                            <p> Expiry Time: ${datetime} </p>
+                            <button id="refresh" class="refresh">Refresh</button>
+                        `;
+              }
+            });
+        }
+      }
+    </script>
+    <div id="results" class="results"></div>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "vmes-db-migrate",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.3.4",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "fs-jetpack": "^5.1.0",
+    "nodemon": "^2.0.22",
+    "sqlite3": "^5.1.6",
+    "ssh2-sftp-client": "^9.0.4"
+  }
+}
