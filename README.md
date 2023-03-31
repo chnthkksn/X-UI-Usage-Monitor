@@ -1,4 +1,7 @@
 # X-UI Usage Monitor
+
+![Banner](./data/screens/banner.png)
+
 ## Table of Contents
 
 - [About](#about)
@@ -50,7 +53,7 @@ It will automatically download database from your x-ui installed VPS (db locatio
 
 ## Screenshots <a name = "screenshots"></a>
 
-![Data Found Screem](./data/screens/ss1.png)
+![Data Found Screen](./data/screens/ss1.png)
 
 ## TODO <a name = "todo"></a>
 
