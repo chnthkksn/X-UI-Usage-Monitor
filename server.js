@@ -2,10 +2,10 @@ const express = require('express');
 const updater  = require('./updater')
 const scanner = require('./scanner');
 
-// updater.getDbs();
-// setInterval(() => {
-//     updater.getDbs();
-// }, 600000);
+updater.getDbs();
+setInterval(() => {
+    updater.getDbs();
+}, 600000);
 
 const app = express();
 

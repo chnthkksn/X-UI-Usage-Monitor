@@ -4,6 +4,10 @@ const path = require('path');
 const client = require('ssh2-sftp-client');
 
 const hosts = require('./hosts');
+if (!fs.existsSync('./dbs/temp')) {
+    console.log('Creating temp folder');
+    jetpack.dir('./dbs/temp');
+}
 
 let sftp = new client();
 let datetime = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
