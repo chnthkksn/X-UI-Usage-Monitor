@@ -1,6 +1,8 @@
 const express = require('express');
 const updater  = require('./updater')
 const scanner = require('./scanner');
+const dotenv = require('dotenv').config();
+const cors = require('cors');
 
 updater.getDbs();
 setInterval(() => {
@@ -8,13 +10,25 @@ setInterval(() => {
 }, 600000);
 
 const app = express();
+const user = process.env.PANEL_USERNAME;
+const pword = process.env.PANEL_PASSWORD;
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
+});
+
+app.get('/login', (req, res) => {
+    email = req.query.email;
+    password = req.query.password;
+    if (email == user && password == pword) {
+        res.redirect('/admin');
+    }
+    res.sendFile(__dirname + '/public/login.html');
 });
 
 app.get('/admin', (req, res) => {
@@ -28,6 +42,16 @@ app.get('/api', (req, res) => {
 app.get('/api/getDbs', (req, res) => {
     updater.getDbs();
     res.send('Dbs updated, check console for more info');
+});
+
+app.get('/api/getTable', async (req, res) => {
+    const data = await scanner.fetchAll();
+    if (data.length > 0) {
+        res.status(200).json(data);
+    }
+    else {
+        res.status(404).json({ message: 'No data found' });
+    }
 });
 
 app.get('/api/usage/:email', async (req, res) => {

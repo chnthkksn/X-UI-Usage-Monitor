@@ -1,8 +1,5 @@
+/.vscode
 /node_modules
 /.env
 /hosts.js
-/.vscode
-/dbs/in.db
-/dbs/jp2.db
-/dbs/temp/jp2.db
-/dbs/temp/in.db
+/dbs

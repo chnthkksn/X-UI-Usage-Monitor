@@ -1,12 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Area</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"
+    />
+    <link rel="stylesheet" href="css/admin.css" />
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="./usageConvert.js"></script>
+  </head>
+
+  <body>
+    <table id="example" class="table table-striped" style="width: 100%">
+      <thead>
+        <tr>
+          <th>Email</th>
+          <th>Up</th>
+          <th>Down</th>
+          <th>Expiry</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <script>
+      let isLogged = localStorage.getItem("isLogged");
+      if (isLogged == "true") {
+      } else {
+        window.location.href = "login.html";
+      }
+
+      function logout() {
+        localStorage.setItem("isLogged", "false");
+        window.location.href = "login.html";
+      }
+
+      fetch("http://localhost:3000/api/getTable")
+        .then((response) => response.json())
+        .then((data) => getData(data));
+
+      async function getData(data) {
+        let html = "";
+        await data.forEach((element) => {
+          for (let i of element["rows"]) {
+            var up = converter(i["up"]);
+            var down = converter(i["down"]);
+            var timedate = timedata(i["expiry_time"]);
+            html += `<tr>
+                  <td>${i["email"]}</td>
+                  <td>${up}</td>
+                  <td>${down}</td>
+                  <td>${timedate}</td>
+                </tr>`;
+          }
+        });
+        document.querySelector("tbody").innerHTML = await html;
+        $(document).ready(function () {
+          $("#example").DataTable({
+            responsive: true
+          });
+        });
+      }
+    </script>
+    <button onclick="logout()">Logout</button>
+  </body>
 </html>

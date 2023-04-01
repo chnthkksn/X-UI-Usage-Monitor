@@ -15,7 +15,13 @@
       <input type="email" id="email" name="email" />
       <button type="submit" id="submit">Submit</button>
     </form>
+    <label>Are you the owner ? Log in <a id="login">here</a></label>
     <script>
+      const login = document.querySelector("#login");
+      login.addEventListener("click", () => {
+        window.location.href = 'http://localhost:3000/login';
+      });
+
       const form = document.querySelector(".form");
       const submit = document.querySelector("#submit");
       submit.addEventListener("click", getData);

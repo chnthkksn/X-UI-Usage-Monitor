@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/login.css">
+    <title>Log In</title>
+</head>
+<body>
+    <form action="submit" method="post">
+        <h1>Login</h1>
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" placeholder="Enter your username">
+        <label for="password" >Password</label>
+        <input type="password" name="password" id="password" placeholder="Enter your password">
+        <button type="submit" name="login" id="login-btn">Login</button>
+    </form>
+    <script>
+        let uname = document.getElementById('username');
+        let pass = document.getElementById('password');
+        let login = document.querySelector('#login-btn');
+        login.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (uname.value == '' || pass.value == '') {
+                alert('Please fill in all the fields');
+            } else {
+                fetch('http://localhost:3000/login?username=' + uname.value + '&password=' + pass.value)
+                    .then(data => {
+                        if (data.status == 200) {
+                            window.location.href = 'http://localhost:3000/admin';
+                            localStorage.setItem('isLogged', 'true');
+                        } else {
+                            alert('Invalid username or password');
+                        }
+                    })
+                    .catch(err => console.log(err));
+            }
+        });
+    </script>
+</body>
+</html>
