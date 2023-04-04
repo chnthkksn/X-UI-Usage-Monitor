@@ -1,8 +1,13 @@
+require('dotenv').config();
+
+const PORT = process.env.PANEL_PORT || 3000;
+const loginRoute = require('./src/routes/login');
 const express = require('express');
 const updater  = require('./updater')
 const scanner = require('./scanner');
-const dotenv = require('dotenv').config();
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const { cookieJwtAuth } = require('./src/middleware/cookieJwtAuth');
 
 updater.getDbs();
 setInterval(() => {
@@ -10,33 +15,40 @@ setInterval(() => {
 }, 600000);
 
 const app = express();
-const user = process.env.PANEL_USERNAME;
-const pword = process.env.PANEL_PASSWORD;
 
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
+app.get('/api', (req, res) => {
+    res.send('API is working properly');
+});
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
 app.get('/login', (req, res) => {
-    email = req.query.email;
-    password = req.query.password;
-    if (email == user && password == pword) {
-        res.redirect('/admin');
-    }
     res.sendFile(__dirname + '/public/login.html');
 });
 
-app.get('/admin', (req, res) => {
-    res.sendFile(__dirname + '/public/admin.html');
+app.get('/api/logout', (req, res) => {
+    if (req.cookies.token) {
+        res.clearCookie('token');
+    }   
+    else{
+        res.status(404).json({ message: 'No token found' });
+    }
+    res.status(200).json({ status: 'success' });
 });
 
-app.get('/api', (req, res) => {
-    res.send('API is working properly');
+app.post('/api/verifyLogin', loginRoute);
+
+app.get('/admin', (req, res) => {
+    cookieJwtAuth(req, res, () => {
+        res.sendFile(__dirname + '/public/admin.html');
+    });
 });
 
 app.get('/api/getDbs', (req, res) => {
@@ -65,6 +77,6 @@ app.get('/api/usage/:email', async (req, res) => {
     }
 });
 
-app.listen(3000, () => {
-    console.log('Server started on port 3000');
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });

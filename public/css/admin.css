@@ -12,15 +12,22 @@ body{
     min-height: 100vh;
     gap: 1rem;
     padding: 1rem;
+    background-color: #f5f5f5;
+
     font-family: 'Poppins', sans-serif;
-    background-color: #f1f1f1;
+}
+
+#example_wrapper{
+    padding: 1.5rem 1.5rem 0 1.5rem;
+    border-radius: 10px;
+    background-color: #fff;
 }
 
 button{
     background-color: #333;
     color: #fff;
     border: none;
-    padding: 10px;
+    padding: 5px;
     border-radius: 5px;
     cursor: pointer;
 }
@@ -30,4 +37,63 @@ input {
     border: 1px solid #ccc;
     border-radius: 5px;
     text-align: center;
+}
+
+#myChart{
+    width: 100%;
+    max-height: 250px;
+    max-height: 300px;
+}
+
+#modal {
+    display: flex;
+    flex-direction: row;
+}
+
+.content{
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.close.icon{
+    align-self: unset;
+    top: auto;
+    position: unset;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #333;
+    padding: 0.5rem;
+}
+
+h2{
+    text-align: center;
+    font-size: 2rem;
+    color: #333;
+    padding: 0.5rem;
+}
+
+p {
+    text-align: center;
+    color: #333;
+    padding: 0.5rem;
+}
+
+
+@media screen and (max-width: 768px) {
+    #modal {
+        flex-direction: column;
+        align-items: center;
+    }
+    .content{
+        width: 100%;
+    }
+    .close.icon{
+        align-self: flex-end;
+        top: 5%;
+        position: fixed;
+    }
 }

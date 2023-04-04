@@ -12,9 +12,9 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-
-    font-family: 'montserrat', sans-serif;
     gap: 1.5rem;
+
+    font-family: 'Poppins', sans-serif;
 }
 
 button{
@@ -48,4 +48,21 @@ form{
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+a{
+    text-decoration: none;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+a:hover{
+    color: #444;
+    font-weight: 500;
+}
+
+#myChart{
+    width: 100%;
+    max-width: 600px;
 }

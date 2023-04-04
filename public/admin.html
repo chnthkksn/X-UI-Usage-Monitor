@@ -4,15 +4,24 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Usage Tracker" />
     <title>Admin Area</title>
-    <link
-      rel="stylesheet"
-      href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"
-    />
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js" integrity="sha512-pumBsjNRGGqkPzKHndZMaAG+bir374sORyzM3uulLV14lN5LyykqNk8eEeUlUkB3U0M4FApyaHraT65ihJhDpQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Sementic UI Library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/modal.min.css" integrity="sha512-O+9HCSTa58q6mrPxDvnNqBc7sPkqC7ByndUgWVMa65B5Y0jRztCrdiIZAEmAee/0+oYpyjNQwj0d4qIaLbNJuQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dimmer.min.css" integrity="sha512-n4WEB3bqIHq/JcKXGdsWDVyQKv42Q9C0VbVyPBg2em9nlsmwNeFWej/NUgSGJCsWemkecaq6oa0dCXrmuwyR+w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/transition.min.css" integrity="sha512-HgM+2tpAdAIDm77Pe0gKU78lxA5MPfurAZFf1KDm1l/0npc9YRh+7rqDXmBKajNu3oFtiOKX+fBrK0W/8wRecw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/icon.min.css" integrity="sha512-rTyypI20S663Wq9zrzMSOP1MNPHaYX7+ug5OZ/DTqCDLwRdErCo2W30Hdme3aUzJSvAUap3SmBk0r5j0vRxyGw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Datatable Ui library -->
+    <link href="https://cdn.datatables.net/v/dt/dt-1.13.4/r-2.4.1/datatables.min.css" rel="stylesheet"/>
+    <script src="https://cdn.datatables.net/v/dt/dt-1.13.4/r-2.4.1/datatables.min.js"></script>
+    <script src="./plugins/filesize.js"></script>
+    <!-- External JS -->
+    <script src="./plugins/modal.js"></script>
+    <script src="./plugins/usageConvert.js"></script>
+    <!-- External CSS -->
     <link rel="stylesheet" href="css/admin.css" />
-    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="./usageConvert.js"></script>
   </head>
 
   <body>
@@ -22,31 +31,52 @@
           <th>Email</th>
           <th>Up</th>
           <th>Down</th>
-          <th>Expiry</th>
+          <th>Info</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
+    <div id="modal"></div>
     <script>
-      let isLogged = localStorage.getItem("isLogged");
-      if (isLogged == "true") {
-      } else {
-        window.location.href = "login.html";
-      }
+      $(window).on ("load", function () {
+        $.getScript("https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/transition.min.js")
+        $.getScript("https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dimmer.min.js")
+        $.getScript("https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/modal.min.js")
+        // Chart JS
+        $.getScript("https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js")
+      });
 
       function logout() {
-        localStorage.setItem("isLogged", "false");
-        window.location.href = "login.html";
+        fetch("/api/logout")
+          .then((response) => {
+            if (response.status == 200) {
+              window.location.href = "/";
+            }
+          })
       }
 
-      fetch("http://localhost:3000/api/getTable")
+      function HideModal() {
+        $(".ui.modal").modal("hide");
+        document.querySelectorAll(".ui.modal").forEach((e) => e.remove());
+      }
+
+      async function viewModal(data) {
+        data = data.split("+");
+        await renderModal(data);
+        $(".ui.modal").modal({ closable: false }).modal("show");
+      }
+
+      fetch("/api/getTable")
         .then((response) => response.json())
         .then((data) => getData(data));
 
       async function getData(data) {
         let html = "";
         await data.forEach((element) => {
+          const db = element["db"];
           for (let i of element["rows"]) {
+            var node = db
+            var email = i["email"];
             var up = converter(i["up"]);
             var down = converter(i["down"]);
             var timedate = timedata(i["expiry_time"]);
@@ -54,17 +84,23 @@
                   <td>${i["email"]}</td>
                   <td>${up}</td>
                   <td>${down}</td>
-                  <td>${timedate}</td>
+                  <td> <button onclick="viewModal('${email}+${i["up"]}+${i["down"]}+${i["total"]}+${timedate}+${node}');">View</button> </td>
                 </tr>`;
           }
         });
+
         document.querySelector("tbody").innerHTML = await html;
         $(document).ready(function () {
           $("#example").DataTable({
-            responsive: true
+            columnDefs: [
+              { type: "file-size", targets: 1 },
+              { type: "file-size", targets: 2 },
+            ],
+            responsive: true,
           });
         });
       }
+
     </script>
     <button onclick="logout()">Logout</button>
   </body>

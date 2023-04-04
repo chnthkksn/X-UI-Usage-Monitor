@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Usage Tracker" />
     <link rel="stylesheet" href="css/login.css">
     <title>Log In</title>
 </head>
@@ -16,6 +17,7 @@
         <input type="password" name="password" id="password" placeholder="Enter your password">
         <button type="submit" name="login" id="login-btn">Login</button>
     </form>
+    <label> Check the usage <a href="/"> here </a> </label>
     <script>
         let uname = document.getElementById('username');
         let pass = document.getElementById('password');
@@ -25,16 +27,22 @@
             if (uname.value == '' || pass.value == '') {
                 alert('Please fill in all the fields');
             } else {
-                fetch('http://localhost:3000/login?username=' + uname.value + '&password=' + pass.value)
-                    .then(data => {
-                        if (data.status == 200) {
-                            window.location.href = 'http://localhost:3000/admin';
-                            localStorage.setItem('isLogged', 'true');
-                        } else {
-                            alert('Invalid username or password');
-                        }
+                fetch('/api/verifyLogin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: uname.value,
+                        password: pass.value
                     })
-                    .catch(err => console.log(err));
+                }).then((res) => {
+                    if (res.status == 200) {
+                        window.location.href = '/admin';
+                    } else {
+                        alert('Invalid username or password');
+                    }
+                });
             }
         });
     </script>

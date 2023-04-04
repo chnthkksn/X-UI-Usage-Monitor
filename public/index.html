@@ -4,10 +4,24 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./css/index.css" />
+    <meta name="description" content="Usage Tracker" />
     <title>Usage Tracker</title>
-    <script src="./usageConvert.js"></script>
+    <!-- JQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+    <!-- Semantic UI CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/modal.min.css" integrity="sha512-O+9HCSTa58q6mrPxDvnNqBc7sPkqC7ByndUgWVMa65B5Y0jRztCrdiIZAEmAee/0+oYpyjNQwj0d4qIaLbNJuQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dimmer.min.css" integrity="sha512-n4WEB3bqIHq/JcKXGdsWDVyQKv42Q9C0VbVyPBg2em9nlsmwNeFWej/NUgSGJCsWemkecaq6oa0dCXrmuwyR+w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/message.min.css" integrity="sha512-cjnERD52Jzybv22NT1ZzuxP8WXHCotGJLY+Z/mRSUB+KKk4pyHFX2M48owbs3hyaa0ZPyZw99x9orcExrxv/zQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/transition.min.css" integrity="sha512-HgM+2tpAdAIDm77Pe0gKU78lxA5MPfurAZFf1KDm1l/0npc9YRh+7rqDXmBKajNu3oFtiOKX+fBrK0W/8wRecw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/icon.min.css" integrity="sha512-rTyypI20S663Wq9zrzMSOP1MNPHaYX7+ug5OZ/DTqCDLwRdErCo2W30Hdme3aUzJSvAUap3SmBk0r5j0vRxyGw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- External CSS -->
+    <link rel="stylesheet" href="css/index.css" />
+    <!-- External JS -->
+    <script src="./plugins/usageConvert.js"></script>
+    <script src="./plugins/modal.js"></script>
   </head>
+
+  
   <body id="body">
     <form class="form">
       <h1>Usage Tracker</h1>
@@ -15,58 +29,61 @@
       <input type="email" id="email" name="email" />
       <button type="submit" id="submit">Submit</button>
     </form>
-    <label>Are you the owner ? Log in <a id="login">here</a></label>
+    <div class="ui hidden message">
+      <div class="header">
+        No Data Found !
+      </div>
+      <p>Make sure you enered the correct email/id</p>
+    </div>
+    <label>Are you the owner ? <a href="/login">Log in here</a></label>
+    <div id="modal"></div>
     <script>
-      const login = document.querySelector("#login");
-      login.addEventListener("click", () => {
-        window.location.href = 'http://localhost:3000/login';
+      $(window).on ("load", function () {
+        $.getScript("https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/transition.min.js")
+        $.getScript("https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/dimmer.min.js")
+        $.getScript("https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/components/modal.min.js")
+        // Chart JS
+        $.getScript("https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js")
       });
 
       const form = document.querySelector(".form");
       const submit = document.querySelector("#submit");
       submit.addEventListener("click", getData);
 
+      function HideModal() {
+        $(".ui.modal").modal("hide");
+        document.querySelectorAll(".ui.modal").forEach((e) => e.remove());
+      }
+
+      async function viewModal(data) {
+        await renderModal(data);
+        $(".ui.modal").modal({ closable: false }).modal("show");
+      }
+
       async function getData(e) {
         e.preventDefault();
         if (document.getElementById("email").value < 1) {
           alert("Please enter your email");
         } else {
-          document.getElementById("results").style.display = "flex";
           const email = document.querySelector("#email").value;
-          await fetch(`http://localhost:3000/api/usage/${email}`)
+          await fetch(`/api/usage/${email}`)
             .then((res) => res.json())
             .then((data) => {
-              console.log(data);
               if (data.message == "No data found") {
-                const results = document.querySelector("#results");
-                results.innerHTML = `
-                            <p> "No Data Found" </p>
-                            <button id="refresh" class="refresh">Refresh</button>
-                        `;
+                $(".ui.hidden.message").show({
+                  duration: 500,
+                  transition: "slide",
+                });
+                $(".ui.hidden.message").delay(2500  ).hide({
+                  duration: 500,
+                  transition: "slide",
+                });
               } else {
-                const nowData = new Date().toLocaleString();
-                const status = data[0].enable == 1 ? "Active 🟢" : "Disabled 🔴";
-                const results = document.querySelector("#results");
-                const uplink = converter(data[0].up);
-                const downlink = converter(data[0].down);
-                const datetime = timedata(data[0].expiry_time)
-                const totalUsage = converter(data[0].up + data[0].down);
-                results.innerHTML = `
-                            <h2 style='text-align:center'> Your Usage @ ${nowData} </h2>
-                            <p> Status: ${status} </p>
-                            <p> Total Usage: ${totalUsage} </p>
-                            <div class='usage-div'>
-                                <p> Upload ⬆️: ${uplink} </p>
-                                <p> Download ⬇️: ${downlink} </p>
-                            </div>
-                            <p> Expiry Time: ${datetime} </p>
-                            <button id="refresh" class="refresh">Refresh</button>
-                        `;
+                viewModal(data[0]);
               }
             });
         }
       }
     </script>
-    <div id="results" class="results"></div>
   </body>
 </html>
