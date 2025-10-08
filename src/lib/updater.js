@@ -42,11 +42,12 @@ async function getDbs() {
       console.log(`${datetime} - Downloaded ${key}.db`);
       await sftp.end();
       console.log(`${datetime} - Disconnected from ${key}`);
+
+      moveDbs();
     } catch (err) {
       console.log(err, "catch error");
     }
   }
-  moveDbs();
 }
 
 export { getDbs };
