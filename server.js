@@ -4,6 +4,7 @@ import cors from "cors";
 import router from "./src/routes/index.js";
 import dotenv from "dotenv";
 import { getDbs } from "./src/lib/updater.js";
+import morgan from "morgan";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ setInterval(() => {
 
 const app = express();
 
+app.use(morgan("dev"));
 app.use(cors({ origin: true, credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
