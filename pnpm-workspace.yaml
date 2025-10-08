@@ -1,0 +1,4 @@
+onlyBuiltDependencies:
+  - cpu-features
+  - sqlite3
+  - ssh2
