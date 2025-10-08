@@ -1,5 +1,5 @@
 import cron from "cron";
-import { getDbs } from "../lib/updater";
+import { getDbs } from "../lib/updater.js";
 
 const startJobs = () => {
   getDbs();
