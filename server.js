@@ -3,17 +3,14 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import router from "./src/routes/index.js";
 import dotenv from "dotenv";
-import { getDbs } from "./src/lib/updater.js";
 import morgan from "morgan";
+import startJobs from "./src/jobs/index.js";
 
 dotenv.config();
 
 const PORT = process.env.PANEL_PORT || 3000;
 
-getDbs();
-setInterval(() => {
-  getDbs();
-}, 600000); // 10 minutes in milliseconds
+startJobs();
 
 const app = express();
 
